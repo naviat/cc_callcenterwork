@@ -23,10 +23,10 @@ jobs:
       - run:
           name: Upload code to S3
           command: |
-            aws s3 cp www/callcenter/callcenter.zip s3://tst-cd-willgroup/callcenter.zip
-            aws s3 cp www/work/work.zip s3://tst-cd-willgroup/work.zip
-            aws s3 cp www/admin/admin.zip s3://tst-cd-willgroup/admin.zip
-            aws s3 cp www/admin_master/admin_master.zip s3://tst-cd-willgroup/admin_master.zip
+            aws s3 cp www/callcenter/callcenter.zip s3://tst-cd-willgroup1/callcenter.zip
+            aws s3 cp www/work/work.zip s3://tst-cd-willgroup1/work.zip
+            aws s3 cp www/admin/admin.zip s3://tst-cd-willgroup1/admin.zip
+            aws s3 cp www/admin_master/admin_master.zip s3://tst-cd-willgroup1/admin_master.zip
       - deploy:
           name: Deploy to Development branch
           command: |
