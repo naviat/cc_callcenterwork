@@ -1,0 +1,43 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: php:7.0-apache
+    working_directory: /home/saintmedia/
+    steps:
+      - checkout
+      - run:
+          name: Install system packages
+          command: |
+            apt-get update && apt-get -y install zip
+            apt-get --quiet install --yes python-pip
+            pip install -U pip
+            pip install awscli
+      - run:
+          name: Zip code
+          command: |
+            cd www/callcenter && zip -r callcenter.zip .
+            cd ../work && zip -r work.zip .
+            cd ../admin && zip -r admin.zip .
+            cd ../admin_master && zip -r admin_master.zip .
+      - run:
+          name: Upload code to S3
+# Check that S3 Bucket name
+          command: |
+            aws s3 cp www/callcenter/callcenter.zip s3://tst-cd-willgroup/callcenter.zip
+            aws s3 cp www/work/work.zip s3://tst-cd-willgroup/work.zip
+            aws s3 cp www/admin/admin.zip s3://tst-cd-willgroup/admin.zip
+            aws s3 cp www/admin_master/admin_master.zip s3://tst-cd-willgroup/admin_master.zip
+# other sample command: aws s3 sync /home/ubuntu/ s3://tst-cd-willgroup/hoila.zip
+      - deploy:
+          name: Deploy to Development branch
+          command: |
+# For Development branch, PLEASE CHECK THIS BRANCH NAME IS CORRECT
+# *NOTICE* Be careful that the work directory will be deploy to 2 instances 
+# web103, web106 (in Development branch) or web03,web10 (in Production branch)
+            if [ "${CIRCLE_BRANCH}" == "devlops" ]; then
+              aws deploy create-deployment --application-name callcenter --deployment-group-name callcenter --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup,bundleType=zip,key=callcenter.zip --region ap-southeast-1
+              aws deploy create-deployment --application-name work --deployment-group-name work --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup,bundleType=zip,key=work.zip --region ap-southeast-1
+              aws deploy create-deployment --application-name admin --deployment-group-name admin --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup,bundleType=zip,key=admin.zip --region ap-southeast-1
+              aws deploy create-deployment --application-name admin --deployment-group-name admin --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup,bundleType=zip,key=admin.zip --region ap-southeast-1
+            fi
