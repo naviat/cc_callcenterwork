@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: circleci/python:2.7
-    working_directory: /home/saintmedia/
+    working_directory: ~/myproject
     branches:
       only:
         - devlops
