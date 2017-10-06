@@ -32,9 +32,6 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "devlops" ]; then
               aws deploy create-deployment --application-name callcenter --deployment-group-name callcenter --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=callcenter.zip --region ap-southeast-1
-              aws deploy create-deployment --application-name work-dev --deployment-group-name work-dev --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=work.zip --region ap-southeast-1
-              aws deploy create-deployment --application-name admin-dev --deployment-group-name admin-dev --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=admin.zip --region ap-southeast-1
-              aws deploy create-deployment --application-name admin_master-dev --deployment-group-name admin_master-dev --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=admin_master.zip --region ap-southeast-1
             fi
   build-prd:
     docker:
@@ -68,9 +65,6 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "prd" ]; then
               aws deploy create-deployment --application-name callcenter-prd --deployment-group-name callcenter-prd --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=callcenter-prd.zip --region ap-southeast-1
-              aws deploy create-deployment --application-name work-prd --deployment-group-name work-prd --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=work-prd.zip --region ap-southeast-1
-              aws deploy create-deployment --application-name admin-prd --deployment-group-name admin-prd --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=admin-prd.zip --region ap-southeast-1
-              aws deploy create-deployment --application-name admin_master-prd --deployment-group-name admin_master-prd --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=admin_master-prd.zip --region ap-southeast-1
             fi
 # For Development branch, SELECT THE TARGET SERVER IS WEB103/WEB106
 # *NOTICE* Be careful that the work directory will be deploy to 2 instances 
