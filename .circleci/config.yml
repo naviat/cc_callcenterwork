@@ -4,17 +4,13 @@ jobs:
     docker:
       - image: circleci/python:2.7
     working_directory: ~/myproject
-    branches:
-      only:
-        - devlops
-        - /rc-.*/
     steps:
       - checkout
       - run:
           name: Install System Packages
           command: |
             apt-get update && apt-get -y install zip
-            apt-get --quiet install --yes python-pip
+#apt-get --quiet install --yes python-pip
             pip install -U pip
             pip install awscli
       - run:
