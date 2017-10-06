@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build-devlops-branch:
+  build:
     docker:
       - image: php:7.0-apache
     working_directory: /home/saintmedia/
