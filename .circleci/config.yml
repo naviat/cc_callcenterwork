@@ -35,7 +35,7 @@ jobs:
           name: Deploy to Development Server
           command: |
             if [ "${CIRCLE_BRANCH}" == "devlops" ]; then
-              aws deploy create-deployment --application-name callcenter-dev --deployment-group-name callcenter-dev --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=callcenter.zip --region ap-southeast-1
+              aws deploy create-deployment --application-name callcenter --deployment-group-name callcenter --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=callcenter.zip --region ap-southeast-1
               aws deploy create-deployment --application-name work-dev --deployment-group-name work-dev --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=work.zip --region ap-southeast-1
               aws deploy create-deployment --application-name admin-dev --deployment-group-name admin-dev --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=admin.zip --region ap-southeast-1
               aws deploy create-deployment --application-name admin_master-dev --deployment-group-name admin_master-dev --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=admin_master.zip --region ap-southeast-1
