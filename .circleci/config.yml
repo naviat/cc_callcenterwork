@@ -67,16 +67,14 @@ workflows:
       - build-devs
           filters:
             branches:
-              only:
-                - devlops
+              only: devlops
       - hold:
          type: approval
          requires:
            - build-devs
       - build-prd:
-          filters:
-            branches:
-              only:
-                - prd
           requires:
             - hold
+          filters:
+            branches:
+              only: prd
