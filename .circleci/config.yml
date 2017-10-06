@@ -1,41 +1,93 @@
 version: 2
 jobs:
-  build:
+  build-devs:
     docker:
       - image: php:7.0-apache
     working_directory: /home/saintmedia/
+    branches:
+      only:
+        - devlops
+        - /rc-.*/
     steps:
       - checkout
       - run:
-          name: Install system packages
+          name: Install System Packages
           command: |
             apt-get update && apt-get -y install zip
             apt-get --quiet install --yes python-pip
             pip install -U pip
             pip install awscli
       - run:
-          name: Zip code
+          name: Zip Code
           command: |
             cd www/callcenter && zip -r callcenter.zip .
             cd ../work && zip -r work.zip .
             cd ../admin && zip -r admin.zip .
             cd ../admin_master && zip -r admin_master.zip .
       - run:
-          name: Upload code to S3
+          name: Upload Code to S3
           command: |
             aws s3 cp www/callcenter/callcenter.zip s3://tst-cd-willgroup1/callcenter.zip
             aws s3 cp www/work/work.zip s3://tst-cd-willgroup1/work.zip
             aws s3 cp www/admin/admin.zip s3://tst-cd-willgroup1/admin.zip
             aws s3 cp www/admin_master/admin_master.zip s3://tst-cd-willgroup1/admin_master.zip
       - deploy:
-          name: Deploy to Development branch
+          name: Deploy to Development Server
           command: |
             if [ "${CIRCLE_BRANCH}" == "devlops" ]; then
-              aws deploy create-deployment --application-name callcenter --deployment-group-name callcenter --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup,bundleType=zip,key=callcenter.zip --region ap-southeast-1
-              aws deploy create-deployment --application-name work --deployment-group-name work --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup,bundleType=zip,key=work.zip --region ap-southeast-1
-              aws deploy create-deployment --application-name admin --deployment-group-name admin --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup,bundleType=zip,key=admin.zip --region ap-southeast-1
-              aws deploy create-deployment --application-name admin_master --deployment-group-name admin_master --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup,bundleType=zip,key=admin_master.zip --region ap-southeast-1
+              aws deploy create-deployment --application-name callcenter-dev --deployment-group-name callcenter-dev --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=callcenter.zip --region ap-southeast-1
+              aws deploy create-deployment --application-name work-dev --deployment-group-name work-dev --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=work.zip --region ap-southeast-1
+              aws deploy create-deployment --application-name admin-dev --deployment-group-name admin-dev --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=admin.zip --region ap-southeast-1
+              aws deploy create-deployment --application-name admin_master-dev --deployment-group-name admin_master-dev --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=admin_master.zip --region ap-southeast-1
             fi
-# For Development branch, PLEASE CHECK THIS BRANCH NAME IS CORRECT
+  build-prd:
+    docker:
+      - image: php:7.0-apache
+    working_directory: /home/saintmedia/
+    branches:
+      only:
+        - prd
+        - /rc-.*/
+    steps:
+      - checkout
+      - run:
+          name: Install System Packages
+          command: |
+            apt-get update && apt-get -y install zip
+            apt-get --quiet install --yes python-pip
+            pip install -U pip
+            pip install awscli
+      - run:
+          name: Zip Code
+          command: |
+            cd www/callcenter && zip -r callcenter-prd.zip .
+            cd ../work && zip -r work-prd.zip .
+            cd ../admin && zip -r admin-prd.zip .
+            cd ../admin_master && zip -r admin_master-prd.zip .
+      - run:
+          name: Upload Code to S3
+          command: | 
+            aws s3 cp www/callcenter/callcenter-prd.zip s3://tst-cd-willgroup1/callcenter-prd.zip
+            aws s3 cp www/work/work-prd.zip s3://tst-cd-willgroup1/work-prd.zip
+            aws s3 cp www/admin/admin-prd.zip s3://tst-cd-willgroup1/admin-prd.zip
+            aws s3 cp www/admin_master/admin_master-prd.zip s3://tst-cd-willgroup1/admin_master-prd.zip
+      - deploy:
+          name: Deploy to Production Server
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "prd" ]; then
+              aws deploy create-deployment --application-name callcenter-prd --deployment-group-name callcenter-prd --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=callcenter-prd.zip --region ap-southeast-1
+              aws deploy create-deployment --application-name work-prd --deployment-group-name work-prd --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=work-prd.zip --region ap-southeast-1
+              aws deploy create-deployment --application-name admin-prd --deployment-group-name admin-prd --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=admin-prd.zip --region ap-southeast-1
+              aws deploy create-deployment --application-name admin_master-prd --deployment-group-name admin_master-prd --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=admin_master-prd.zip --region ap-southeast-1
+            fi
+# For Development branch, SELECT THE TARGET SERVER IS WEB103/WEB106
 # *NOTICE* Be careful that the work directory will be deploy to 2 instances 
-# web103, web106 (in Development branch) or web03,web10 (in Production branch)
+# web103, web106 (in Development branch)
+workflows:
+  version: 2
+  build-and-approval-deploy:
+    jobs:
+      - build-devs
+      - build-prd:
+          requires:
+            - build-devs
