@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  -build:
+  build-devs:
     docker:
       - image: php:7.0-apache
     working_directory: /home/saintmedia/
@@ -77,9 +77,13 @@ jobs:
 # web103, web106 (in Development branch)
 workflows:
   version: 2
-  build-and-approval-deploy:
+  build-test-and-approval-deploy:
     jobs:
-      - build
+      - build-devs
+      - hold:
+         type: approval
+         requires:
+           - build-devs
       - build-prd:
           requires:
-            - build
+            - hold
