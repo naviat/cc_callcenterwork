@@ -34,6 +34,8 @@ jobs:
     docker:
       - image: php:7.0-apache
     working_directory: /home/saintmedia/
+    branches:
+      only: prd
     steps:
       - checkout
       - run:
@@ -72,6 +74,3 @@ workflows:
       - build-prd:
           requires:
             - hold
-          filters:
-            branches:
-              only: prd
