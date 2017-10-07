@@ -70,8 +70,7 @@ workflows:
          requires:
            - build-devs
       - build-prd:
-          requires:
-            - hold
+          requires: hold
           filters:
             branches:
               only: prd
