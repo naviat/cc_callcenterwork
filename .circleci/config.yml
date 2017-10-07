@@ -66,12 +66,12 @@ workflows:
     jobs:
       - build-devs
       - hold:
-         type: approval
-         requires:
-           - build-devs
+          type: approval
+          requires:
+            - build-devs
       - build-prd:
-         requires:
+          requires:
             - hold
-         filters:
-          branches:
-           only: prd
+          filters:
+            branches:
+              only: prd
