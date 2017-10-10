@@ -33,18 +33,11 @@ jobs:
             aws s3 cp www/admin_master/admin_master.zip s3://tst-cd-willgroup1/admin_master.zip
       - deploy:
           name: Deploy to Development Server
-          command: |
-            if [ "${CIRCLE_BRANCH}" == "devlops" ]; then
-              aws deploy create-deployment --application-name callcenter-dev --deployment-group-name callcenter-dev --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=callcenter.zip --region ap-southeast-1
-            fi
+          command: aws deploy create-deployment --application-name callcenter --deployment-group-name callcenter --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=callcenter.zip --region ap-southeast-1
   build-prd:
     docker:
       - image: php:7.0-apache
     working_directory: /home/saintmedia/
-    branches:
-      only:
-        - prd
-        - /rc-.*/
     steps:
       - checkout
       - run:
@@ -70,18 +63,19 @@ jobs:
             aws s3 cp www/admin_master/admin_master-prd.zip s3://tst-cd-willgroup1/admin_master-prd.zip
       - deploy:
           name: Deploy to Production Server
-          command: |
-            if [ "${CIRCLE_BRANCH}" == "prd" ]; then
-              aws deploy create-deployment --application-name callcenter-prd --deployment-group-name callcenter-prd --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=callcenter-prd.zip --region ap-southeast-1
-            fi
-# For Development branch, SELECT THE TARGET SERVER IS WEB103/WEB106
-# *NOTICE* Be careful that the work directory will be deploy to 2 instances 
-# web103, web106 (in Development branch)
+          command: aws deploy create-deployment --application-name callcenter_prd --deployment-group-name callcenter_prd --deployment-config-name CodeDeployDefault.AllAtOnce --s3-location bucket=tst-cd-willgroup1,bundleType=zip,key=callcenter-prd.zip --region ap-southeast-1
 workflows:
   version: 2
-  build-and-approval-deploy:
+  build-test-and-approval-deploy:
     jobs:
       - build-devs
-      - build-prd:
+      - hold:
+          type: approval
           requires:
             - build-devs
+      - build-prd:
+          requires:
+            - hold
+          filters:
+            branches:
+              only: prd
